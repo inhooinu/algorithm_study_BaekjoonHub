@@ -1,0 +1,9 @@
+-- 코드를 입력하세요
+# INTAKE_CONDITION = Sick
+# 아이디, 이름 조회
+# 아이디 순으로 정렬
+
+SELECT ANIMAL_ID, NAME
+FROM ANIMAL_INS
+WHERE INTAKE_CONDITION = "Sick"
+ORDER BY ANIMAL_ID
