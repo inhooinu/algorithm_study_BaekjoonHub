@@ -1,0 +1,7 @@
+-- 코드를 입력하세요
+# INTAKE_CONDITION이 Aged가 아닌 경우의 아이디와 이름 조회
+# 아이디 순으로 정렬
+SELECT ANIMAL_ID, NAME
+FROM ANIMAL_INS
+WHERE INTAKE_CONDITION != 'Aged'
+ORDER BY ANIMAL_ID
