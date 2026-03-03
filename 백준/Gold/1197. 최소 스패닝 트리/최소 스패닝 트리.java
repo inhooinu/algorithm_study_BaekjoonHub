@@ -1,70 +1,79 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// 최소 스패닝 트리 구하기
-// 최소 스패닝 트리: 주어진 그래프의 모든 정점들을 연결하는 부분 그래프 중에서 그 가중치의 합이 최소인 트리
 public class Main {
 	
 	static int V, E;
+	static PriorityQueue<Edge> points;
 	static class Edge implements Comparable<Edge> {
-		int v;
-		int weight;
-		public Edge(int v, int weight) {
-			this.v = v;
-			this.weight = weight;
+		int s, e, w;
+		public Edge(int s, int e, int w) {
+			this.s=s; this.e=e; this.w=w;
 		}
 		@Override
-		public int compareTo(Edge e) {
-			return Integer.compare(this.weight,  e.weight);
+		public int compareTo(Edge o) {
+			return Integer.compare(this.w, o.w);
 		}
 	}
-	static List<Edge>[] adj;
-	static long min;
+	static int result;
+	static int[] p;
+	static int[] r;
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
 		V = Integer.parseInt(st.nextToken());
 		E = Integer.parseInt(st.nextToken());
-		adj = new ArrayList[V+1];
-		for (int i=0; i<V+1; i++) {
-			adj[i] = new ArrayList<>();
-		}
-		
+		points = new PriorityQueue<>();
 		for (int i=0; i<E; i++) {
 			st = new StringTokenizer(br.readLine());
 			int s = Integer.parseInt(st.nextToken());
 			int e = Integer.parseInt(st.nextToken());
 			int w = Integer.parseInt(st.nextToken());
-			adj[s].add(new Edge(e,w));
-			adj[e].add(new Edge(s,w));
+			points.offer(new Edge(s,e,w));
 		}
-		System.out.println(prim());
-	}
-
-	private static long prim() {
-		long min=0L;
-		boolean[] visited=new boolean[V+1];
-		PriorityQueue<Edge> points=new PriorityQueue<>();
-		points.offer(new Edge(1,0));
-		int cnt=0;
-		while (!points.isEmpty()) {
-			Edge edge=points.poll();
-			if (visited[edge.v]) continue;
-			min+=edge.weight;
-			visited[edge.v]=true;
-			if(++cnt==V) return min;
-			for (int i=0; i<adj[edge.v].size(); i++) {
-				Edge next=adj[edge.v].get(i);
-				if (visited[next.v]) continue;
-				points.offer(next);
+		p = new int[V+1];
+		r = new int[V+1];
+		makeSet();
+		int cnt = 0;
+		result = 0;
+		while (cnt!=V-1) {  // (정점-1)개 만큼의 간선이 연결되면 끝
+			Edge edge = points.poll();
+			if (union(edge.s, edge.e)) {  // 합칠 수 있으면
+				cnt++;
+				result+=edge.w;
 			}
 		}
-		return min;
+		System.out.println(result);
 	}
+
+	private static boolean union(int x, int y) {
+		x=find(x);
+		y=find(y);
+		if (x==y) return false;  // 이미 같은 집합 (연결하면 싸이클 생김)
+		if (r[x]<r[y]) {  // 작은 트리를 큰 트리에 연결
+			r[y]+=r[x];
+			p[x]=y;
+		} else {
+			r[x]+=r[y];
+			p[y]=x;
+		}
+		return true;
+	}
+
+	private static int find(int x) {
+		if (x==p[x]) return p[x];
+		else return p[x]=find(p[x]);
+	}
+
+	private static void makeSet() {  // unionFind를 위한 초기화
+		for (int i=1; i<=V; i++) {
+			p[i] = i;
+			r[i] = 1;
+		}
+	}
+	
 }
