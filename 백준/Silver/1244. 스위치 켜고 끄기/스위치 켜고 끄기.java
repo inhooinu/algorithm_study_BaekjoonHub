@@ -1,63 +1,56 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.io.*;
 
 public class Main {
+
+	static int ledCount;
+	static int N; // 학생 수
+	static int[] ledState;
 	
-	static int ledNum;  // led 개수
-	static int[] led;  // led 상태
-	static int sNum;  // 학생 수
-	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		StringTokenizer st;
-		ledNum = Integer.parseInt(br.readLine());
-		led = new int[ledNum+1];
-		st = new StringTokenizer(br.readLine());
-		for (int i=1; i<=ledNum; i++) {
-			led[i] = Integer.parseInt(st.nextToken());
+		ledCount = Integer.parseInt(br.readLine());
+		ledState = new int[ledCount+1];
+		StringTokenizer st = new StringTokenizer(br.readLine());
+		for (int i = 1; i <= ledCount; i++) {
+			ledState[i] = Integer.parseInt(st.nextToken());
 		}
-//		System.out.println(Arrays.toString(led));
-		sNum = Integer.parseInt(br.readLine());
-		for (int i=0; i<sNum; i++) {
+		N = Integer.parseInt(br.readLine());
+		for (int i = 0; i < N; i++) {
 			st = new StringTokenizer(br.readLine());
-			int gender = Integer.parseInt(st.nextToken());
-			int num = Integer.parseInt(st.nextToken());
-			
-			if (gender==1) {  // 남학생인 경우
-				
-				for (int j=num; j<=ledNum; j+=num) {
-					led[j] = (led[j]+1)%2;
+			int gen = Integer.parseInt(st.nextToken());
+			int led = Integer.parseInt(st.nextToken());
+			if(gen == 1) {
+				int x = 1;
+				while(led * x <= ledCount) {
+					togleLed(led*x);
+					x++;
 				}
-//				System.out.println(Arrays.toString(led));
-				
-			} else {  // 여학생인 경우
-				
-				led[num] = (led[num]+1)%2;
-				int k = 1;
-				while (true) {
-					if (num-k<1 || num+k>ledNum) break;
-					if (led[num-k]!=led[num+k]) break;
-					led[num-k] = (led[num-k]+1)%2;
-					led[num+k] = (led[num+k]+1)%2;
-					k++;
-//					System.out.println(Arrays.toString(led));
+			}else {
+				togleLed(led);
+				int x = 1;
+				while(true) {
+					int left = led - x;
+					int right = led + x;
+					if(left <= 0 || right > ledCount) break;
+					if(ledState[left] != ledState[right]) break;
+					togleLed(left);
+					togleLed(right);
+					x++;
 				}
-			
 			}
 		}
-		
-		int cnt = 0;
-		for (int i=1; i<=ledNum; i++) {
-			System.out.print(led[i]+" ");
-			cnt++;
-			if (cnt==20) {
-				System.out.println();
-				cnt = 0;
-			}
+		StringBuilder sb = new StringBuilder();
+		for (int i = 1; i <= ledCount; i++) {
+			sb.append(ledState[i]).append(" ");
+			if(i % 20 == 0) sb.append('\n');
 		}
+		System.out.println(sb);
+	}
+	
+	static void togleLed(int n) {
+		if(ledState[n] == 1) ledState[n] = 0;
+		else ledState[n] = 1;
 	}
 
 }
