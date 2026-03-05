@@ -6,10 +6,12 @@ import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
+// 가중치가 있는 그래프에서 최소비용 구하기
 public class Main {
 	
-	static int N, M, X;  // N명의 학생(=N개의 마을), M개의 단방향 도로, 마을 X (목적지)
+	static int N, M, X;  // N명의 학생(=N개의 마을), M개의 단방향 도로, X번 마을
 	static ArrayList<Edge>[] graph;
+	static ArrayList<Edge>[] reverseGraph;
 	static class Edge implements Comparable<Edge> {
 		int v, w;
 		Edge(int v, int w) {
@@ -20,11 +22,10 @@ public class Main {
 			return Integer.compare(this.w, o.w);
 		}
 	}
-	static int[][] goCost;
-	static int[] returnCost;
-	static int[] totalCost;
-	static PriorityQueue<Edge> pq;
+	static int[] costFromX;
+	static int[] costToX;
 	static int maxVal = Integer.MAX_VALUE/2;
+	static int result;
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -33,72 +34,63 @@ public class Main {
 		M = Integer.parseInt(st.nextToken());
 		X = Integer.parseInt(st.nextToken());
 		graph = new ArrayList[N+1];
+		reverseGraph = new ArrayList[N+1];
 		for (int i=1; i<=N; i++) {
 			graph[i] = new ArrayList<>();
+			reverseGraph[i] = new ArrayList<>();
 		}
+		// 그래프 입력 받기
 		for (int i=0; i<M; i++) {
 			st = new StringTokenizer(br.readLine());
-			int s, e, cost;
-			s = Integer.parseInt(st.nextToken());
-			e = Integer.parseInt(st.nextToken());
-			cost = Integer.parseInt(st.nextToken());
-			graph[s].add(new Edge(e,cost));
+			int s = Integer.parseInt(st.nextToken());
+			int e = Integer.parseInt(st.nextToken());
+			int t = Integer.parseInt(st.nextToken());
+			graph[s].add(new Edge(e,t));
+			reverseGraph[e].add(new Edge(s,t));
 		}
-		goCost = new int[N+1][N+1];
-		returnCost = new int[N+1];
-		totalCost = new int[N+1];
+		costFromX = new int[N+1];
+		costToX = new int[N+1];
+		// 비용 배열 max 값으로 초기화
 		for (int i=1; i<=N; i++) {
-			Arrays.fill(goCost[i], maxVal);
+			costFromX[i] = maxVal;
+			costToX[i] = maxVal;
 		}
-		Arrays.fill(returnCost, maxVal);
 		
-		// 갈 때 최소비용 탐색
-		for (int i=1; i<=N; i++) {
-			goCost[i][i] = 0;
-		}
-		for (int startNode=1; startNode<=N; startNode++) {  // 시작지점 1~N에 대하여
-			pq = new PriorityQueue<>();
-			pq.offer(new Edge(startNode, 0));
-			while (!pq.isEmpty()) {
-				Edge cur = pq.poll();
-				for (Edge next: graph[cur.v]) {
-					if (goCost[startNode][next.v] > goCost[startNode][cur.v] + next.w) {
-						goCost[startNode][next.v] = goCost[startNode][cur.v] + next.w;
-						pq.offer(new Edge(next.v, goCost[startNode][next.v]));
-					}
-				}
-			}
-		}
-//		for (int i=1; i<=N; i++) {
-//			System.out.println(Arrays.toString(goCost[i]));
-//		}
-//		System.out.println();
-		
-		// 올 때 최소비용 탐색
-		returnCost[X] = 0;
-		pq = new PriorityQueue<>();
-		pq.offer(new Edge(X, 0));
+		// graph에서 최소 비용 탐색
+		PriorityQueue<Edge> pq = new PriorityQueue<>();
+		costFromX[X] = 0;
+		pq.add(new Edge(X,0));
 		while (!pq.isEmpty()) {
 			Edge cur = pq.poll();
 			for (Edge next: graph[cur.v]) {
-				if (returnCost[next.v] > returnCost[cur.v] + next.w) {
-					returnCost[next.v] = returnCost[cur.v] + next.w;
-					pq.offer(new Edge(next.v, returnCost[next.v]));
+				if (costFromX[next.v] > costFromX[cur.v] + next.w) {
+					costFromX[next.v] = costFromX[cur.v] + next.w;
+					pq.offer(new Edge(next.v,costFromX[next.v]));
 				}
 			}
 		}
-//		System.out.println(Arrays.toString(returnCost));
-//		System.out.println();
+//		System.out.println(Arrays.toString(costFromX));
+		
+		// reverseGraph에서 최소 비용 탐색
+		pq = new PriorityQueue<>();
+		costToX[X] = 0;
+		pq.add(new Edge(X,0));
+		while (!pq.isEmpty()) {
+			Edge cur = pq.poll();
+			for (Edge next: reverseGraph[cur.v]) {
+				if (costToX[next.v] > costToX[cur.v] + next.w) {
+					costToX[next.v] = costToX[cur.v] + next.w;
+					pq.offer(new Edge(next.v,costToX[next.v]));
+				}
+			}
+		}
+//		System.out.println(Arrays.toString(costToX));
 		
 		for (int i=1; i<=N; i++) {
-			totalCost[i] = goCost[i][X] + returnCost[i];
+			int totalCost = costFromX[i] + costToX[i];
+			result = Math.max(result, totalCost);
 		}
-//		System.out.println(Arrays.toString(totalCost));
-		
-		int maxCost = 0;
-		for (int i=1; i<=N; i++) {
-			maxCost = Math.max(maxCost, totalCost[i]);
-		}
-		System.out.println(maxCost);
+		System.out.println(result);
 	}
+
 }
