@@ -1,43 +1,37 @@
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Main {
 
-    static int N;
-    static int M;
-    static int[] nums;
+    static int N, M;
     static int[] result;
-    static StringBuilder sb = new StringBuilder();
+    static StringBuilder sb;
 
+    // 1부터 N까지의 자연수 중에서 M개를 고른 수열
+    // 중복 허용
     public static void main(String[] args) {
-        // 1부터 N까지 자연수 중 M개를 고른 수열
-        // 같은 수를 여러 번 골라도 됨
         Scanner sc = new Scanner(System.in);
         N = sc.nextInt();
         M = sc.nextInt();
-        nums = new int[N];
         result = new int[M];
+        sb = new StringBuilder();
 
-        for (int i=0; i<N; i++) {
-            nums[i] = i+1;
-        }
-
-        select(0);  // 0번째 위치의 숫자 고르기
+        select(0, 1);
         System.out.println(sb);
     }
 
-    static void select(int idx) {
-        if (idx==M) {
-            for (int i=0; i<M; i++) {
-                sb.append(result[i]).append(" ");
+    private static void select(int cnt, int start) {
+        if (cnt==M) {
+            for (int i=0; i<result.length; i++) {
+                sb.append(result[i]+" ");
             }
             sb.append("\n");
             return;
         }
 
-        for (int i=0; i<N; i++) {
-            if (idx>0 && result[idx-1]>nums[i]) continue;
-            result[idx] = nums[i];
-            select(idx+1);
+        for (int i=start; i<=N; i++) {
+            result[cnt] = i;
+            select(cnt + 1, i);
         }
     }
 }
