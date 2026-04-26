@@ -1,0 +1,15 @@
+X = int(input())
+N = int(input())
+
+sum = 0
+for i in range(N):
+	a, b = input().split()
+	a = int(a)
+	b = int(b)
+
+	sum = sum + a*b
+
+if X == sum:
+	print("Yes")
+else:
+	print("No")
