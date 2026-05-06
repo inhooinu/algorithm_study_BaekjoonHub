@@ -2,14 +2,12 @@ import java.util.*;
 
 class Solution {
     public boolean solution(String[] phone_book) {
-        
-        Arrays.sort(phone_book);
-        for (int i=0; i<phone_book.length-1; i++) {
-            if (phone_book[i+1].startsWith(phone_book[i])) {
-                return false;
-            }
+        String[] pb = phone_book.clone();
+        Arrays.sort(pb);
+        for (int i=0; i<pb.length-1; i++) {
+            if (pb[i+1].startsWith(pb[i])) return false;
         }
-
+        
         return true;
     }
 }
