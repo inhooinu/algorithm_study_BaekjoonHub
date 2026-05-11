@@ -1,54 +1,46 @@
 import java.util.*;
 
 class Solution {
-    
-    static class Process {
-        int idx;
-        int priority;
-        public Process(int idx, int priority) {
-            this.idx=idx;
-            this.priority=priority;
-        }
-    }
-    
     public int solution(int[] priorities, int location) {
         
-        int maxPriority = 0;
         int[] priorityCnt = new int[10];
-        for (int i=0; i<priorities.length; i++) {
-            int priority = priorities[i];
-            maxPriority = Math.max(maxPriority, priority);
-            priorityCnt[priority]++;
-        }
         
-        Queue<Process> q = new ArrayDeque<>();
+        ArrayDeque<int[]> q = new ArrayDeque<>();  // idx, priority
         for (int i=0; i<priorities.length; i++) {
-            q.offer(new Process(i, priorities[i]));
+            q.add(new int[] {i, priorities[i]});
+            priorityCnt[priorities[i]]++;
         }
+        System.out.println(Arrays.toString(priorityCnt));
         
+        int p = findMaxPriority(priorityCnt);
         int answer = 0;
         while (!q.isEmpty()) {
-            Process cur = q.poll();
-            
-            if (cur.priority==maxPriority) {  // 실행
+            int[] cur = q.pollFirst();
+            if (cur[1]<p) q.offerLast(cur);
+            else {
+                // System.out.println(cur[0]+" "+cur[1]);
                 answer++;
-                
-                priorityCnt[cur.priority]--;
-                if (priorityCnt[cur.priority]==0) {
-                    for (int i=cur.priority; i>0; i--) {
-                        if (priorityCnt[i]>0) {
-                            maxPriority=i;
-                            break;
-                        }
-                    }
-                }
 
-                if (cur.idx==location) break;
-            } else {  // 다시 넣기
-                q.offer(cur);
+                if (cur[0]==location) {
+                    break;
+                }
+                
+                priorityCnt[cur[1]]--;
+                if (priorityCnt[cur[1]]==0) {
+                    p = findMaxPriority(priorityCnt);
+                }
             }
         }
         
+        
         return answer;
+    }
+    
+    public int findMaxPriority(int[] priorityCnt) {
+        for (int i=9; i>0; i--) {
+            if (priorityCnt[i]>0) return i;
+        }
+        
+        return 0;
     }
 }
